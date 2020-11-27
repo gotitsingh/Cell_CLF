@@ -112,8 +112,16 @@ def Visualize_Detail_Predict_Image(imarray, save_path, height, width, coord_list
     img.save(tmp_img_path)
 
     tmp_img_path = os.path.join(save_path, "Detailed_Segment_Predict.png")
+    #img = Image.fromarray(tmp_array.astype(np.uint8))
+    #img[Overall_Segment_Array == -1] = [255, 0, 0]
+    tmp_array = np.zeros([overall_width, overall_height, 3])
+    for j in range(overall_width):
+        for k in range(overall_height):
+            if Overall_Segment_Array[j, k] ==- 1:
+                tmp_array[j, k]=[255,0,0]
+            else:
+                tmp_array[j, k] = imarray[j, k]
     img = Image.fromarray(tmp_array.astype(np.uint8))
-    img[Overall_Segment_Array == -1] = [255, 0, 0]
     draw = ImageDraw.Draw(img)
     for k in range(len(Label_List)):
         tmp_coord = coord_list[k]
