@@ -121,7 +121,7 @@ def CV2Segment_Image(input_img_path, save_path, params):
             remove_index=np.argwhere(markers == k)
             area_size=len(remove_index)
             if area_size<remove_threshold:
-                markers[remove_index[:,0],remove_index[:,1]]=-1#marked as not visiable
+                markers[remove_index[:,0],remove_index[:,1]]=-3#marked as not visiable
 
     img1[markers == -1] = [255, 0, 0]
     #save the image with watershed
