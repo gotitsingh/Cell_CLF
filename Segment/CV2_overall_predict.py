@@ -147,6 +147,8 @@ def Visualize_Detail_Predict_Image(imarray, save_path, height, width, coord_list
     img.save(tmp_img_path)
 
 def Draw_Coord_Figure(tmp_coord_figure_path,coord_list,imarray):
+    print(imarray)
+    print(imarray.shape)
     modify_imarray=np.array(imarray,dtype=np.uint8)
     img=Image.fromarray(modify_imarray)
     #img = Image.fromarray(imarray.astype(np.uint8))
