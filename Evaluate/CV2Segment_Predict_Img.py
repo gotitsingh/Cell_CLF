@@ -72,7 +72,7 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     mean_value = (0.59187051, 0.53104666, 0.56797799)
     std_value = (0.19646512, 0.23195337, 0.20233912)
     im = Image.open(input_img_path)
-    imarray = np.array(im)
+    imarray = np.asarray(im)
     height = params['height']
     width = params['width']
     print("Markers shape", Markers.shape)  # same as image shape

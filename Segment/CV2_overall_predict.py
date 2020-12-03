@@ -21,7 +21,7 @@ def CV2_overall_predict(model,height,width,
     coord_list=np.array(coord_list)#coord now is based on image, instead of array
     tmp_coord_path=os.path.join(save_path,'Coord_Info.txt')
     np.savetxt(tmp_coord_path,coord_list)
-    #print("DEBUG INFO: im array type",type(imarray))
+    print("DEBUG INFO: im array type",type(imarray))
     #draw a picture for coordinates
     tmp_coord_figure_path=os.path.join(save_path,"Coord_Info.png")
     Draw_Coord_Figure(tmp_coord_figure_path,coord_list,imarray)
@@ -147,8 +147,8 @@ def Visualize_Detail_Predict_Image(imarray, save_path, height, width, coord_list
     img.save(tmp_img_path)
 
 def Draw_Coord_Figure(tmp_coord_figure_path,coord_list,imarray):
-    print(imarray)
-    print(imarray.shape)
+    #print(imarray)
+    #print(imarray.shape)
     modify_imarray=np.array(imarray,dtype=np.uint8)
     img=Image.fromarray(modify_imarray)
     #img = Image.fromarray(imarray.astype(np.uint8))
