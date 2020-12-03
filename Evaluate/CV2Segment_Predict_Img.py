@@ -22,7 +22,7 @@ from matplotlib import pyplot as plt
 from Segment.CV2_overall_predict import CV2_overall_predict
 from Model.Load_CPU_Model import Load_CPU_Model
 import shutil
-from matplotlib.image import imread
+#from matplotlib.image import imread
 def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     #if resize is required
 
@@ -77,8 +77,8 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     #print(im.mode)
     #dtype={'F':np.float32,'L':np.uint8}[im.mode]
     #imarray = np.array(im.getdata(),dtype=dtype)
-    imarray=imread(input_img_path)
-    #imarray=cv.imread()
+    #imarray=imread(input_img_path)
+    imarray=cv.imread(input_img_path)
     height = params['height']
     width = params['width']
     print("Markers shape", Markers.shape)  # same as image shape
