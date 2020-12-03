@@ -72,14 +72,15 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     mean_value = (0.59187051, 0.53104666, 0.56797799)
     std_value = (0.19646512, 0.23195337, 0.20233912)
     original_path = os.path.join(save_path, 'Original.png')
-    im = Image.open(original_path)
-    print(im.mode)
-    dtype={'F':np.float32,'L':np.uint8}[im.mode]
-    imarray = np.array(im.getdata(),dtype=dtype)
+    #im = Image.open(original_path)
+    #print(im.mode)
+    #dtype={'F':np.float32,'L':np.uint8}[im.mode]
+    #imarray = np.array(im.getdata(),dtype=dtype)
+    imarray=cv.imread(original_path,mode="RGB")
     height = params['height']
     width = params['width']
     print("Markers shape", Markers.shape)  # same as image shape
-    print("Image shape", im.size)
+    #print("Image shape", im.size)
     CV2_overall_predict(model, height, width, Markers, imarray, mean_value, std_value, save_path, params,origin_img_name)
 
 def CV2Segment_Image(input_img_path, save_path, params):
