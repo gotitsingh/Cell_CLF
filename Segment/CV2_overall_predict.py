@@ -9,6 +9,7 @@ import numpy as np
 import os
 from Evaluate.Predict_Img import Visualize_Predict_Image
 from PIL import Image,ImageFont,ImageDraw
+import shutil
 def CV2_overall_predict(model,height,width,
                         Overall_Segment_Array,imarray,mean_value,std_value,save_path,params,added_name):
     coord_list=Build_Coord_List(Overall_Segment_Array)#this coord for imarray not for image
@@ -88,7 +89,8 @@ def CV2_overall_predict(model,height,width,
             continue
         if os.path.exists(now_img_path) and now_img_path!=tmp_img_path:
             os.remove(now_img_path)
-        os.system("mv "+str(tmp_img_path)+" "+now_img_path)
+        #os.system("mv "+str(tmp_img_path)+" "+now_img_path)
+        shutil.move(tmp_img_path,now_img_path)
     #label that on image
     Visualize_Predict_Image(imarray, save_path, height, width, coord_list,Label_List)
     Visualize_Detail_Predict_Image(imarray, save_path, height, width, coord_list,Label_List,Overall_Segment_Array)
