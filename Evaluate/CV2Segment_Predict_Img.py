@@ -21,6 +21,7 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 from Segment.CV2_overall_predict import CV2_overall_predict
 from Model.Load_CPU_Model import Load_CPU_Model
+import shutil
 def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     #if resize is required
 
@@ -81,7 +82,8 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
 def CV2Segment_Image(input_img_path, save_path, params):
     #https://docs.opencv.org/master/d3/db4/tutorial_py_watershed.html
     original_path=os.path.join(save_path,'Original.png')
-    os.system("cp "+input_img_path+" "+original_path)
+    #os.system("cp "+input_img_path+" "+original_path)
+    shutil.copy(input_img_path,original_path)
     img = cv.imread(input_img_path)
     if img is None:
         print("READING IMAGE FAILED!!")
