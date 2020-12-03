@@ -77,7 +77,8 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     #print(im.mode)
     #dtype={'F':np.float32,'L':np.uint8}[im.mode]
     #imarray = np.array(im.getdata(),dtype=dtype)
-    imarray=imread(original_path)
+    imarray=imread(input_img_path)
+    #imarray=cv.imread()
     height = params['height']
     width = params['width']
     print("Markers shape", Markers.shape)  # same as image shape
