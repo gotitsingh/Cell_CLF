@@ -64,10 +64,13 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
     save_path = log_path
     if params['resize']:
         print("We are doing resizing here")
-        img2=Image.open(input_img_path)
-        img2=img2.resize([params['resize_width'],params['resize_height']])
+        #img2=Image.open(input_img_path)
+        img = cv.imread(input_img_path)
+        #img2=img2.resize([params['resize_width'],params['resize_height']])
+        img2=cv.resize(img,(params['resize_width'],params['resize_height']))
         input_img_path_resize=os.path.join(save_path,'resize_img.png')
-        img2.save(input_img_path_resize)
+        #img2.save(input_img_path_resize)
+        cv.imwrite(input_img_path_resize, img2)
         input_img_path=input_img_path_resize
     Markers= CV2Segment_Image(input_img_path, save_path, params)
     mean_value = (0.59187051, 0.53104666, 0.56797799)
