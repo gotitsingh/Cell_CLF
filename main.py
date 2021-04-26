@@ -3,9 +3,10 @@ from ops.argparser import argparser
 
 if __name__ == "__main__":
     params = argparser()
+
     # print(params)
     if params['mode'] == -100:
-        #extract the cell images from tif
+        #extract the cell Images from tif
         input_path = params['F']
         type = params['type']
         from Data_Processing.Generate_Segemented_Image import Generate_Segemented_Image,Generate_Segemented_Image_Update
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         Predict_Img(params,input_img_path,location_info_path,model_path)
 
     elif params['mode']==3:
-        #input an image to apply and save all images
+        #input an image to apply and save all Images
         image_path=params['F']
         from Augment.Visualize_Image import Visualize_Image
         Visualize_Image(image_path)
@@ -92,6 +93,3 @@ if __name__ == "__main__":
         for item in listfiles:
             tmp_file = os.path.join(input_img_dir, item)
             CV2Segment_Predict_Img(params, tmp_file, model_path)
-
-
-

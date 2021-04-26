@@ -56,7 +56,7 @@ def Predict_Img(params,input_img_path,location_info_path,model_path):
     # we do not use this finally, use imagenet calculated standard mean and std normalize
     mean_value=(0.59187051,0.53104666,0.56797799)
     std_value=(0.19646512,0.23195337,0.20233912)
-    #first segmented image to small image
+    # first segmented image to small image
     im = Image.open(input_img_path)
     imarray = np.array(im)
     coord_list =Extract_Coord_list(location_info_path)
@@ -70,7 +70,7 @@ def Predict_Img(params,input_img_path,location_info_path,model_path):
     else:
         print("Segmented part can not work, please have a check")
         return
-    #then predict
+    # then predict
     All_Predict_Img=[]
     for k in range(count_image):
         tmp_trainset_path=os.path.join(save_path,'trainset'+str(k)+'.npy')
@@ -84,7 +84,7 @@ def Predict_Img(params,input_img_path,location_info_path,model_path):
                                                    drop_last=False, pin_memory=True)
     Label_List=[]
     Prob_List=[]
-    model.eval()#very important, fix batch normalization
+    model.eval()  # very important, fix batch normalization
     for i,inputs in enumerate(test_dataloader):
         if params['choose']!="-1":
             inputs=inputs.cuda()
@@ -100,7 +100,7 @@ def Predict_Img(params,input_img_path,location_info_path,model_path):
             tmp_label=int(np.argmax(tmp_pred))
             Label_List.append(tmp_label)
             Prob_List.append(tmp_pred[tmp_label])
-    #first, write a file for the predicted results
+    # first, write a file for the predicted results
     pred_txt=os.path.join(save_path,'Predict.txt')
     with open(pred_txt,'w') as file:
         file.write('Coord0\tCoord_1\tPredict_Label\tProbability\n')
@@ -109,7 +109,7 @@ def Predict_Img(params,input_img_path,location_info_path,model_path):
             pred_info=Label_List[k]
             prob_info=Prob_List[k]
             file.write(str(coord_info[0])+"\t"+str(coord_info[1])+"\t"+str(pred_info)+"\t"+str(prob_info)+"\n")
-    #relabel the segmented image
+    # relabel the segmented image
     for k in range(count_image):
         tmp_img_path = os.path.join(save_path, str(0) + "_" + str(k) + '.png')
         now_img_path=os.path.join(save_path,str(Label_List[k])+ "_" + str(k) + '.png')

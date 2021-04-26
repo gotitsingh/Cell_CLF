@@ -23,27 +23,26 @@ from Segment.CV2_overall_predict import CV2_overall_predict
 from Model.Load_CPU_Model import Load_CPU_Model
 import shutil
 #from matplotlib.image import imread
+
 def CV2Segment_Predict_Img(params, input_img_path,  model_path):
-    #if resize is required
-
-
+    # if resize is required
     log_path = os.path.join(os.getcwd(), 'Predict_Result')
     mkdir(log_path)
     split_path = os.path.split(input_img_path)
-    origin_img_name=split_path[1][:-4]
+    origin_img_name = split_path[1][:-4]
     log_path = os.path.join(log_path, split_path[1])
     mkdir(log_path)
-    log_path=os.path.join(log_path,"Filter_"+str(params['filter_size']))
+    log_path = os.path.join(log_path, "Filter_" + str(params['filter_size']))
     mkdir(log_path)
-    origin_img_name+="Filter_"+str(params['filter_size'])
+    origin_img_name += "Filter_"+str(params['filter_size'])
     log_path = os.path.join(log_path, "threshold_" + str(params['threshold']))
     mkdir(log_path)
     origin_img_name += "threshold_" + str(params['threshold'])
     log_path = os.path.join(log_path, "Removepixel_" + str(params['remove_pixel']))
     mkdir(log_path)
-    origin_img_name+="Removepixel_" + str(params['remove_pixel'])
+    origin_img_name += "Removepixel_" + str(params['remove_pixel'])
     model = resnet20(num_class=params['class'])
-    if params['choose']!="-1":
+    if params['choose'] != "-1":
         model = model.cuda()
         model = nn.DataParallel(model, device_ids=None)
     # reload the model
@@ -53,7 +52,7 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
         if params['choose'] != "-1":
             model.load_state_dict(model_state_dict['ema_state_dict'])
         else:
-            model=Load_CPU_Model(model_state_dict['ema_state_dict'],model)
+            model = Load_CPU_Model(model_state_dict['ema_state_dict'], model)
     else:
         print("Load common model")
         if params['choose'] != "-1":
@@ -63,97 +62,125 @@ def CV2Segment_Predict_Img(params, input_img_path,  model_path):
 
     save_path = log_path
     if params['resize']:
-        print("We are doing resizing here")
-        #img2=Image.open(input_img_path)
+        print("We are doing resizing here to make predictions clear")
+        # img2=Image.open(input_img_path)
         img = cv.imread(input_img_path)
-        #img2=img2.resize([params['resize_width'],params['resize_height']])
-        img2=cv.resize(img,(params['resize_width'],params['resize_height']))
-        input_img_path_resize=os.path.join(save_path,'resize_img.png')
-        #img2.save(input_img_path_resize)
+        # img2=img2.resize([params['resize_width'],params['resize_height']])
+        img2 = cv.resize(img,(params['resize_width'], params['resize_height']))
+        input_img_path_resize = os.path.join(save_path, 'resize_img.png')
+        # img2.save(input_img_path_resize)
         cv.imwrite(input_img_path_resize, img2)
-        input_img_path=input_img_path_resize
-    Markers= CV2Segment_Image(input_img_path, save_path, params)
+        input_img_path = input_img_path_resize
+    Markers = CV2Segment_Image(input_img_path, save_path, params)
     mean_value = (0.59187051, 0.53104666, 0.56797799)
     std_value = (0.19646512, 0.23195337, 0.20233912)
-    original_path = os.path.join(save_path, 'Original.png')
+    # original_path = os.path.join(save_path, 'Original.png')
     #im = Image.open(original_path)
     #print(im.mode)
     #dtype={'F':np.float32,'L':np.uint8}[im.mode]
     #imarray = np.array(im.getdata(),dtype=dtype)
     #imarray=imread(input_img_path)
-    imarray=cv.imread(input_img_path)
+    imarray = cv.imread(input_img_path)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/Original.png", imarray)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/Marked.png", Markers)
     height = params['height']
     width = params['width']
     print("Markers shape", Markers.shape)  # same as image shape
-    print("imarray type",type(imarray))
-    #print("Image shape", im.size)
-    CV2_overall_predict(model, height, width, Markers, imarray, mean_value, std_value, save_path, params,origin_img_name)
+    print("imarray type", type(imarray))
+    # print("Image shape", im.size)
+    CV2_overall_predict(model, height, width, Markers, imarray, mean_value, std_value, save_path, params, origin_img_name)
+
 
 def CV2Segment_Image(input_img_path, save_path, params):
-    #https://docs.opencv.org/master/d3/db4/tutorial_py_watershed.html
-    original_path=os.path.join(save_path,'Original.png')
-    #os.system("cp "+input_img_path+" "+original_path)
-    shutil.copy(input_img_path,original_path)
+    #  https://docs.opencv.org/master/d3/db4/tutorial_py_watershed.html
+    original_path = os.path.join(save_path,'Original.png')
+    #  os.system("cp "+input_img_path+" "+original_path)
+    shutil.copy(input_img_path, original_path)
     img = cv.imread(input_img_path)
     if img is None:
         print("READING IMAGE FAILED!!")
         exit()
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    if params['type']==0:
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/gray.png", gray)
+
+    if params['type'] == 0:  # setting type: 0: common setting, 1: including large cells
         ret, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
+        cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/thresh_common.png", thresh)
     else:
         ret, thresh = cv.threshold(gray, params['threshold'], 255, cv.THRESH_BINARY_INV)
+        cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/thresh_large_cells.png", thresh)
+
     # noise removal
-    filter_size=params['filter_size']
+    filter_size = params['filter_size']
     kernel = np.ones((filter_size, filter_size), np.uint8)
-    #detailed instructions in https://docs.opencv.org/trunk/d9/d61/tutorial_py_morphological_ops.html
+    # detailed instructions in https://docs.opencv.org/trunk/d9/d61/tutorial_py_morphological_ops.html
     opening = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel, iterations=2)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/morphology.png", opening)
+
     # sure background area
     sure_bg = cv.dilate(opening, kernel, iterations=3)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/background.png", sure_bg)
+
     # Finding sure foreground area
     dist_transform = cv.distanceTransform(opening, cv.DIST_L2, 3)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/normalized.png", dist_transform)
+
     ret, sure_fg = cv.threshold(dist_transform, 3, 255, 0)
     # Finding unknown region
     sure_fg = np.uint8(sure_fg)
     unknown = cv.subtract(sure_bg, sure_fg)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/foreground.png", sure_fg)
+
     # Marker labelling
     ret, markers = cv.connectedComponents(sure_fg)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/marker_cc.png", markers)
+
     # Add one to all labels so that sure background is not 0, but 1
     markers = markers + 1
     # Now, mark the region of unknown with zero
     markers[unknown == 255] = 0
-    img1=img.copy()
+    img1 = img.copy()
     markers = cv.watershed(img1, markers)
-    #check the markers id
-    max_id=np.max(markers)
-    if params['remove_pixel']!=0:
-        remove_threshold=params['remove_pixel']
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/markers_watershed.png", markers)
 
-        for k in range(1,max_id+1):
-            remove_index=np.argwhere(markers == k)
-            area_size=len(remove_index)
-            if area_size<remove_threshold:
-                markers[remove_index[:,0],remove_index[:,1]]=-3#marked as not visiable
+    # check the markers id
+    max_id = np.max(markers)
+    if params['remove_pixel'] != 0:
+        remove_threshold = params['remove_pixel']
+        for k in range(1, max_id+1):
+            remove_index = np.argwhere(markers == k)
+            area_size = len(remove_index)
+            if area_size < remove_threshold:
+                markers[remove_index[:, 0], remove_index[:, 1]] = -3  # marked as not visiable
 
     img1[markers == -1] = [255, 0, 0]
-    #save the image with watershed
-    tmp_image=Image.fromarray(img1)
-    extracted_path=os.path.join(save_path,"Filtered_watershed.png")
+
+    # remove positive segmented area
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/markers_positive_segmented_area.png", img1)
+
+    # save the image with watershed
+    tmp_image = Image.fromarray(img1)
+    extracted_path = os.path.join(save_path, "Filtered_watershed.png")
     tmp_image.save(extracted_path)
-    #colored markers
-    markers_plot=np.array(markers,dtype=np.uint8)
-    heat_map=cv.applyColorMap(markers_plot,cv.COLORMAP_JET)
-    plt.imshow(heat_map,alpha=0.5)
-    markers_path=os.path.join(save_path,"Markers_visualization.png")
-    plt.savefig(markers_path)
-    #show the extracted plots, block other parts
-    remained_image=np.zeros(img.shape)
+
+    # colored markers
+    markers_plot = np.array(markers, dtype=np.uint8)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/markers_plot.png", markers_plot)
+
+    heat_map = cv.applyColorMap(markers_plot,cv.COLORMAP_JET)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/heat_map.png", heat_map)
+    # plt.imshow(heat_map,alpha=0.5)
+    # markers_path=os.path.join(save_path,"Markers_visualization.png")
+    # plt.savefig(markers_path)
+    # show the extracted plots, block other parts
+    remained_image = np.zeros(img.shape)
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
-            if(markers[i,j]>1):
-                remained_image[i,j,:]=img[i,j,:]
-    remained_image=np.array(remained_image,dtype=np.uint8)
-    imgshow=Image.fromarray(remained_image)
-    extracted_path=os.path.join(save_path,'Extracted_area.png')
+            if markers[i, j] > 1:   # including the pixels from the markers into the remained_image
+                remained_image[i, j, :] = img[i, j, :]
+    remained_image = np.array(remained_image, dtype=np.uint8)
+    cv.imwrite("/Users/gotitsingh/Downloads/Images_Processing/remained_image.png", remained_image)
+    imgshow = Image.fromarray(remained_image)
+    extracted_path = os.path.join(save_path,'Extracted_area.png')
     imgshow.save(extracted_path)
     return markers
